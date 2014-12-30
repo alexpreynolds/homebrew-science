@@ -2,8 +2,8 @@ require 'formula'
 
 class Bedops < Formula
   homepage 'https://github.com/bedops/bedops'
-  url 'https://github.com/bedops/bedops/archive/v2.4.1.tar.gz'
-  sha1 '0107aac81493b22f81e139a053d32bb926d0af7b'
+  url 'https://github.com/bedops/bedops/archive/v2.4.3.tar.gz'
+  sha1 'd9304c63f53cb948e59fe04b0ea96c3ea4da1da3'
 
   head 'https://github.com/bedops/bedops.git'
 
@@ -16,10 +16,9 @@ class Bedops < Formula
 
   def install
     ENV.O3
-    ENV.deparallelize
     ENV.delete('CFLAGS')
     ENV.delete('CXXFLAGS')
-    system 'make', 'build_all_darwin_intel_fat'
+    system 'make'
     system 'make', 'install'
     bin.install Dir['bin/*']
     doc.install %w[LICENSE README.md]
