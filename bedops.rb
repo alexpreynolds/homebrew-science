@@ -4,7 +4,6 @@ class Bedops < Formula
   # tag "bioinformatics"
 
   url "https://github.com/bedops/bedops/archive/v2.4.15.tar.gz"
-  sha1 "46ff119375dbc3b054c6d6fe35a03cc905e9163e"
 
   head "https://github.com/bedops/bedops.git"
 
