@@ -6,6 +6,7 @@ class Bedops < Formula
   url "https://github.com/bedops/bedops/archive/v2.4.15.tar.gz"
 
   head "https://github.com/bedops/bedops.git"
+  sha256 "8364b319831936951835369ef582ac7ddbd15c29682ae0e45a80c4e6a8f36245"
 
   bottle do
     cellar :any
