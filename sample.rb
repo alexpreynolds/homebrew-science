@@ -1,5 +1,5 @@
 class Sample < Formula
-  desc "This tool performs reservoir sampling (Vitter, 'Random sampling with a reservoir'; cf. http://dx.doi.org/10.1145/3147.3165 and also: http://en.wikipedia.org/wiki/Reservoir_sampling) with or without replacement on very large text files that are delimited by newline characters (such as common genomic data formats like BED, SAM, VCF, etc.) and scales to larger inputs than GNU shuf by sampling line offsets, instead of whole lines."
+  desc "`sample` performs reservoir sampling with or without replacement, scaling to larger inputs than GNU `shuf`"
   homepage "https://github.com/alexpreynolds/sample"
   # tag "bioinformatics"
 
