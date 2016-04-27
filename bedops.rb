@@ -1,10 +1,11 @@
 class Bedops < Formula
+  desc "Set and statistical operations on genomic data of arbitrary scale"
   homepage "https://github.com/bedops/bedops"
   # doi "10.1093/bioinformatics/bts277"
   # tag "bioinformatics"
 
-  url "https://github.com/bedops/bedops/archive/v2.4.15.tar.gz"
-  sha256 "8364b319831936951835369ef582ac7ddbd15c29682ae0e45a80c4e6a8f36245"
+  url "https://github.com/bedops/bedops/archive/v2.4.17.tar.gz"
+  sha256 "a7e8b4b811899ac96f962dbe5319af7360bc4ddc75c517b5206021a1c46a05bf"
 
   head "https://github.com/bedops/bedops.git"
 
