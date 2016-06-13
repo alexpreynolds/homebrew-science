@@ -8,8 +8,6 @@ class Sample < Formula
 
   head "https://github.com/alexpreynolds/sample.git"
 
-  env :std
-
   def install
     ENV.O3
     ENV.delete("CFLAGS")
@@ -20,6 +18,23 @@ class Sample < Formula
   end
 
   test do
-    system "make", "check"
+    require "tmpdir"
+    require "open3"
+    temp_dir = Dir.mktmpdir
+    begin
+      open("#{temp_dir}/original.txt", "w") { |t| t.puts ["1", "2", "3", "4", "5"].join("\n") }
+      stdout, _stderr, status = Open3.capture3("#{bin}/sample", "--rng-seed=123456", "#{dir}/original.txt")
+      if status != 0
+        puts "sample failed with non-zero error - test failed"
+        exit status
+      end
+      shuffled_original = stdout.dup.delete("\n")
+      unless shuffled_original == ["4", "2", "1", "3", "5"].join("")
+        puts "sample observed output not matching expected output - test failed"
+        exit 1
+      end
+    ensure
+      remove_entry_secure temp_dir
+    end
   end
 end
