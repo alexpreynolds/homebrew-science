@@ -23,7 +23,7 @@ class Sample < Formula
     temp_dir = Dir.mktmpdir
     begin
       open("#{temp_dir}/original.txt", "w") { |t| t.puts ["1", "2", "3", "4", "5"].join("\n") }
-      stdout, _stderr, status = Open3.capture3("#{bin}/sample", "--rng-seed=123456", "#{dir}/original.txt")
+      stdout, _stderr, status = Open3.capture3("#{bin}/sample", "--rng-seed=123456", "#{temp_dir}/original.txt")
       if status != 0
         puts "sample failed with non-zero error - test failed"
         exit status
