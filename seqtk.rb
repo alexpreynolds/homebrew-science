@@ -1,18 +1,19 @@
 class Seqtk < Formula
+  desc "Toolkit for processing sequences in FASTA/Q formats"
   homepage "https://github.com/lh3/seqtk"
   # tag "bioinformatics"
 
-  url "https://github.com/lh3/seqtk/archive/5b8ebb23e9a81466c901a46d089f29c4a1cecfa5.tar.gz"
-  version "77"
-  sha256 "89c8da1b81f01919c45d9e375a837d6df879a602eed25d464c5ec89ae03e7fe3"
+  url "https://github.com/lh3/seqtk/archive/v1.1.tar.gz"
+  sha256 "f01b9f9af6e443673a0105a7536a01957a4fc371826385a1f3dd1e417aa91d52"
 
   head "https://github.com/lh3/seqtk.git"
 
   bottle do
-    cellar :any
-    sha256 "a0a7413764b47a974bed1dd7421aae2955a20be5472ca8eb50115e851abed8ba" => :yosemite
-    sha256 "df87383935ec546aff0f7d4583994f0cf17f308eaf238f3c4ac3fa6d76ca824f" => :mavericks
-    sha256 "4b1189e67b37d36feaf8e58cc6002012db347cd594895be0bcb84b99cfd322be" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "3f9f294d0dc6e875928753bda692c5f0a13290bd2f16f06642921640d9539600" => :el_capitan
+    sha256 "3ba2a3a19f2b128a9b41130d023254bb16688cd2c1945b237ca20aba89023968" => :yosemite
+    sha256 "5e32f0a3a7dfdf836c1ed54377136459772011bb1829fc7a8695064b8c4badb3" => :mavericks
+    sha256 "e4c54fa49b50a2e9a69bd60aa31b707cb053e728f7f285f224e1f20ad40dc398" => :x86_64_linux
   end
 
   def install

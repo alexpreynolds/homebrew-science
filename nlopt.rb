@@ -1,16 +1,16 @@
 class Nlopt < Formula
-  desc "A free/open-source library for nonlinear optimization"
+  desc "Free/open-source library for nonlinear optimization"
   homepage "http://ab-initio.mit.edu/nlopt"
   url "http://ab-initio.mit.edu/nlopt/nlopt-2.4.2.tar.gz"
   sha256 "8099633de9d71cbc06cd435da993eb424bbcdbded8f803cdaa9fb8c6e09c8e89"
+  revision 1
   head "https://github.com/stevengj/nlopt.git"
 
   bottle do
     cellar :any
-    revision 1
-    sha256 "6fa1e71cd347dadac482360db4daa688803e471ec15a3dc84d2845c94a93cad7" => :yosemite
-    sha256 "10db1934619093419bd5f2f318dd7b72ea0055b0faff1cf4336c297ebd94df59" => :mavericks
-    sha256 "443e96acf9200cbbfb8e1a6a15c8fee3576515ddd5abe9d8c2d9bff2c38e3d64" => :mountain_lion
+    sha256 "9df03f31fb174e5b5f8f5da6bd86d3e4d3ec251f6cdbb49d8aafaac358e3ae60" => :el_capitan
+    sha256 "3ca33af7b8d0901ffd956dd1d2f0e45e2b4d4bb5c9527557209ba333639b9cf6" => :yosemite
+    sha256 "e4ef742d0c606323d8bdeb776ddb9c98ba023fb9919de45edb203f64601b9d9b" => :mavericks
   end
 
   option "with-python", "Build Python bindings (requires NumPy)"
@@ -29,8 +29,8 @@ class Nlopt < Formula
     args << "--without-python" if build.without? "python"
 
     if build.with? "octave"
-      ENV["OCT_INSTALL_DIR"] = share/"nlopt/oct"
-      ENV["M_INSTALL_DIR"] = share/"nlopt/m"
+      ENV["OCT_INSTALL_DIR"] = pkgshare/"oct"
+      ENV["M_INSTALL_DIR"] = pkgshare/"m"
       ENV["MKOCTFILE"] = "#{Formula["octave"].opt_bin}/mkoctfile"
     end
 
@@ -49,9 +49,9 @@ class Nlopt < Formula
     if build.with? "octave"
       s += <<-EOS.undent
       Please add
-        #{share}/nlopt/oct
+        #{pkgshare}/oct
       and
-        #{share}/nlopt/m
+        #{pkgshare}/m
       to the Octave path.
       EOS
     end

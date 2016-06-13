@@ -1,22 +1,22 @@
 class Opencv < Formula
   desc "Open source computer vision library"
   homepage "http://opencv.org/"
-  url "https://github.com/Itseez/opencv/archive/2.4.12.tar.gz"
-  sha256 "8989f946a66fa3fc2764d637b1c866caf28d074ece187f86baba66544054eefc"
+  url "https://github.com/Itseez/opencv/archive/2.4.13.tar.gz"
+  sha256 "94ebcca61c30034d5fb16feab8ec12c8a868f5162d20a9f0396f0f5f6d8bbbff"
   head "https://github.com/Itseez/opencv.git", :branch => "2.4"
-  revision 2
 
   bottle do
-    sha256 "3e584f97f377b8ac0f7e55efa494bdb0fb108930212f5fb8a03cecc18f9b1d43" => :el_capitan
-    sha256 "c60dc79ecf71499e91945726f4e0fd3f7abaf2dac92e4a8d081c4be48d39dcac" => :yosemite
-    sha256 "f4e3fdf22515e9847f70fcd71ef96eef06e68077f054e0178417fe073594fd83" => :mavericks
+    revision 1
+    sha256 "e44fdca642ac9def5caad1d93e9a5b552ab98003bffd3944f6e2f48a7cc9520e" => :el_capitan
+    sha256 "cd353325cd8ba64a59cb8eede6d8b9b7172c1fff4c61e3b9a544ad00dfb74f70" => :yosemite
+    sha256 "28151a791da776784c98352ae447944a6f3cb4098f8a887ade3878852f012a1a" => :mavericks
   end
 
   option "32-bit"
   option "with-java", "Build with Java support"
   option "with-qt", "Build the Qt4 backend to HighGUI"
   option "with-tbb", "Enable parallel code in OpenCV using Intel TBB"
-  option "without-tests", "Build without accuracy & performance tests"
+  option "without-test", "Build without accuracy & performance tests"
   option "without-opencl", "Disable GPU code in OpenCV using OpenCL"
   option "with-cuda", "Build with CUDA support"
   option "with-quicktime", "Use QuickTime for Video I/O instead of QTKit"
@@ -26,6 +26,7 @@ class Opencv < Formula
   option "without-python", "Build without Python support"
 
   deprecated_option "without-brewed-numpy" => "without-numpy"
+  deprecated_option "without-tests" => "without-test"
 
   option :cxx11
   option :universal
@@ -76,7 +77,7 @@ class Opencv < Formula
       -DJPEG_INCLUDE_DIR=#{jpeg.opt_include}
       -DJPEG_LIBRARY=#{jpeg.opt_lib}/libjpeg.#{dylib}
     ]
-    args << "-DBUILD_TESTS=OFF" << "-DBUILD_PERF_TESTS=OFF" if build.without? "tests"
+    args << "-DBUILD_TESTS=OFF" << "-DBUILD_PERF_TESTS=OFF" if build.without? "test"
     args << "-DBUILD_opencv_python=" + arg_switch("python")
     args << "-DBUILD_opencv_java=" + arg_switch("java")
     args << "-DWITH_OPENEXR="   + arg_switch("openexr")
@@ -118,8 +119,8 @@ class Opencv < Formula
       args << "-DWITH_OPENNI=ON"
       # Set proper path for Homebrew's openni
       inreplace "cmake/OpenCVFindOpenNI.cmake" do |s|
-        s.gsub! "/usr/include/ni", "#{Formula["openni"].opt_include}/ni"
-        s.gsub! "/usr/lib", "#{Formula["openni"].opt_lib}"
+        s.gsub! "/usr/include/ni", Formula["openni"].opt_include/"ni"
+        s.gsub! "/usr/lib", Formula["openni"].opt_lib
       end
     end
 

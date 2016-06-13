@@ -1,17 +1,20 @@
 class Trilinos < Formula
-  desc "Algorithms for the solution of large-scale, complex multi-physics engineering and scientific problems"
+  desc "Solution of large-scale, multi-physics problems"
   homepage "http://trilinos.sandia.gov"
-  url "https://trilinos.org/oldsite/download/files/trilinos-12.4.2-Source.tar.bz2"
-  sha256 "78225d650ddcfc453b40cddb99b2fbb79998ff6359f9090154727b916812a58e"
+  url "http://trilinos.csbsju.edu/download/files/trilinos-12.6.2-Source.tar.bz2"
+  sha256 "77f1674d1fe8b9249db967b8f6c162ebfde50c43d5cb993044825302c624b00e"
   head "https://software.sandia.gov/trilinos/repositories/publicTrilinos", :using => :git
 
   bottle do
-    sha256 "cb3ca115bdb54c7f760ea0569aae7172db10ef8a4f5b7648b1c98c92a887055f" => :el_capitan
-    sha256 "cdb15c6509cbe130642ea4a0cbaa5946cd8ce9ee574fad066e270e04de162552" => :yosemite
-    sha256 "ac9649f7cdae07d93f83a12a0e8dc0de788b62b01291fe372dfc1a1692304413" => :mavericks
+    sha256 "d2153f608644b0d244069c9961e562af7ebac1d7811af3d7379c2bc75a736771" => :el_capitan
+    sha256 "848792cf4a374e09a38f58afb20bc824e3d8dba8eb6ccb7328ac7c01c8b66e98" => :yosemite
+    sha256 "9f1e8fae5d01aa016d03a2a29df70184d2dd63e49af31299e688f4be10c7d6fc" => :mavericks
   end
 
-  option "with-check", "Perform build time checks (time consuming and contains failures)"
+  option "with-test", "Perform build time checks (time consuming and contains failures)"
+  option "without-python", "Build without python2 support"
+
+  deprecated_option "with-check" => "with-test"
 
   # options and dependencies not supported in the current version
   # are commented out with #- and failure reasons are documented.
@@ -21,9 +24,8 @@ class Trilinos < Formula
   depends_on :mpi           => [:cc, :cxx, :recommended]
   depends_on :fortran       => :recommended
   depends_on :x11           => :recommended
-
-  depends_on :python        => :recommended
-  depends_on "homebrew/python/numpy"  if build.with? "python"
+  depends_on :python        => :recommended if MacOS.version <= :snow_leopard
+  depends_on "numpy"        => :python if build.with? "python"
   depends_on "swig"         => :build if build.with? "python"
 
   depends_on "cmake"        => :build
@@ -37,17 +39,17 @@ class Trilinos < Formula
   depends_on "adol-c"       => :recommended
   depends_on "boost"        => :recommended
   depends_on "cppunit"      => :recommended
-  depends_on "doxygen"      => ["with-graphviz", :recommended]
+  depends_on "doxygen"      => ["with-graphviz", :optional]
   depends_on "hwloc"        => :recommended
   depends_on "libmatio"     => [:recommended] + ((build.with? "hdf5") ? ["with-hdf5"] : [])
   depends_on "metis"        => :recommended
   depends_on "mumps"        => [:recommended] + openblasdep
-  depends_on "netcdf"       => ["with-fortran", :recommended]
+  depends_on "netcdf"       => ["with-fortran", :optional]
   depends_on "parmetis"     => :recommended if build.with? "mpi"
   depends_on "scalapack"    => [:recommended] + openblasdep
   depends_on "scotch"       => :recommended
   depends_on "suite-sparse" => [:recommended] + openblasdep
-  #-depends_on "superlu"      => [:recommended] + openblasdep // Amesos2_Superlu_FunctionMap.hpp:83:14: error: no type named 'superlu_options_t' in namespace 'SLU'
+  # depends_on "superlu"      => [:recommended] + openblasdep # broken; see below
   depends_on "superlu_dist" => [:recommended] + openblasdep if build.with? "parmetis"
 
   #-depends_on "petsc"        => :optional # ML packages currently do not compile with PETSc >= 3.3
@@ -58,7 +60,7 @@ class Trilinos < Formula
   depends_on "eigen"        => :recommended
   depends_on "hypre"        => [:recommended] + ((build.with? "mpi") ? [] : ["without-mpi"]) + openblasdep # EpetraExt tests fail to compile
   depends_on "glpk"         => :recommended
-  depends_on "hdf5"         => [:recommended] + mpidep
+  depends_on "hdf5"         => [:optional] + mpidep
   depends_on "tbb"          => :recommended
   depends_on "glm"          => :recommended
   depends_on "yaml-cpp"     => :recommended
@@ -73,17 +75,18 @@ class Trilinos < Formula
   # ForUQTK, ExodusII, CUSPARSE, Cusp, CrayPortals, Coupler, Clp, CCOLAMD,
   # BGQPAMI, BGPDCMF, ARPREC, ADIC
 
+  resource "mpi4py" do
+    url "https://bitbucket.org/mpi4py/mpi4py/downloads/mpi4py-2.0.0.tar.gz"
+    sha256 "6543a05851a7aa1e6d165e673d422ba24e45c41e4221f0993fe1e5924a00cb81"
+  end
+
   def onoff(s, cond)
     s + ((cond) ? "ON" : "OFF")
   end
 
-  # Patch FindTPLUMFPACK to work with UMFPACK>=5.6.0
-  # Teuchos_Details_Allocator to have max_size()
-  # and other minor compiler errors
-  patch :DATA
-
   # Kokkos, Tpetra and Sacado will be OFF without cxx11
   needs :cxx11
+
   def install
     ENV.cxx11
     # Trilinos supports only Debug or Release CMAKE_BUILD_TYPE!
@@ -105,7 +108,7 @@ class Trilinos < Formula
 
     # enable tests only when we inted to run checks.
     # that reduced the build time from 130 min to 51 min.
-    args << onoff("-DTrilinos_ENABLE_TESTS:BOOL=", (build.with? "check"))
+    args << onoff("-DTrilinos_ENABLE_TESTS:BOOL=", (build.with? "test"))
     # some tests are needed to have binaries in the "test do" block:
     args << "-DEpetra_ENABLE_TESTS=ON"
 
@@ -128,8 +131,7 @@ class Trilinos < Formula
     args << "-DTrilinos_ASSERT_MISSING_PACKAGES=OFF" if build.head?
 
     args << onoff("-DTPL_ENABLE_MPI:BOOL=", (build.with? "mpi"))
-    # TODO:
-    # OpenMP leads deal.II to fail with compiler errors in trilinos headers even though trilinos compiles fine
+    # TODO: OpenMP leads deal.II to fail with compiler errors in trilinos headers even though trilinos compiles fine
     # It could be that there is a missing #include somewhere in Trilinos which becames visible when we
     # try to use it.
     # For now disable OpenMP:
@@ -230,7 +232,14 @@ class Trilinos < Formula
 
     args << onoff("-DTPL_ENABLE_SCALAPACK:BOOL=", (build.with? "scalapack"))
 
-    args << onoff("-DTPL_ENABLE_SuperLU:BOOL=", false) #   (build.with? "superlu"))
+    # Amesos_Superlu.cpp:479:5: error: no matching function for call to
+    # 'dgssvx'
+    #     dgssvx( &(SLUopt), &(data_->A),
+    #         ^~~~~~
+    #         /usr/local/opt/superlu/include/superlu/slu_ddefs.h:111:1: note:
+    #         candidate function not viable: requires 22 arguments, but 21 were
+    #         provided
+    args << onoff("-DTPL_ENABLE_SuperLU:BOOL=", false) # (build.with? "superlu"))
     # args << "-DSuperLU_INCLUDE_DIRS=#{Formula["superlu"].opt_include}/superlu" if build.with? "superlu"
 
     # fix for 4.0:
@@ -256,10 +265,17 @@ class Trilinos < Formula
     args << onoff("-DTrilinos_ENABLE_PyTrilinos:BOOL=", (build.with? "python"))
     args << "-DPyTrilinos_INSTALL_PREFIX:PATH=#{prefix}" if build.with? "python"
 
+    if (build.with? "mpi") && (build.with? "python")
+      ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python2.7/site-packages"
+      resource("mpi4py").stage do
+        system "python", *Language::Python.setup_install_args(libexec/"vendor")
+      end
+    end
+
     mkdir "build" do
       system "cmake", "..", *args
       system "make", "VERBOSE=1"
-      system ("ctest -j" + Hardware::CPU.cores) if build.with? "check"
+      system ("ctest -j" + Hardware::CPU.cores) if build.with? "test"
       system "make", "install"
       # When trilinos is built with Python, libpytrilinos is included through
       # cmake configure files. Namely, Trilinos_LIBRARIES in TrilinosConfig.cmake
@@ -270,16 +286,14 @@ class Trilinos < Formula
       # See https://github.com/Homebrew/homebrew-science/issues/2148#issuecomment-103614509
       # A workaround it to remove PyTrilinos from the COMPONENTS_LIST :
       if build.with? "python"
-        inreplace "#{lib}/cmake/Trilinos/TrilinosConfig.cmake" do |s|
-          s.gsub! "PyTrilinos;", "" if s.include? "COMPONENTS_LIST"
-        end
+        inreplace "#{lib}/cmake/Trilinos/TrilinosConfig.cmake", "PyTrilinos;", "" if s.include? "COMPONENTS_LIST"
       end
     end
   end
 
   def caveats; <<-EOS
     The following Trilinos packages were disabled due to compile errors:
-      FEI, Pike, Piro, SEACAS, STK, Stokhos, Zoltan2, Amesos2
+      FEI, MueLU, Pike, Piro, SEACAS, STK, Stokhos, Zoltan2, Amesos2
 
     On Linuxbrew install with:
       --with-openblas
@@ -299,79 +313,3 @@ class Trilinos < Formula
     # system "#{bin}/Tpetra_GEMMTiming_TPI.exe"                                       # this file is not there
   end
 end
-
-__END__
-diff --git a/cmake/TPLs/FindTPLUMFPACK.cmake b/cmake/TPLs/FindTPLUMFPACK.cmake
-index 963eb71..998cd02 100644
---- a/cmake/TPLs/FindTPLUMFPACK.cmake
-+++ b/cmake/TPLs/FindTPLUMFPACK.cmake
-@@ -55,6 +55,6 @@
-
-
- TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES( UMFPACK
--  REQUIRED_HEADERS umfpack.h amd.h UFconfig.h
-+  REQUIRED_HEADERS umfpack.h amd.h SuiteSparse_config.h
-   REQUIRED_LIBS_NAMES umfpack amd
-   )
-diff --git a/packages/mesquite/CMakeLists.txt b/packages/mesquite/CMakeLists.txt
-index 7cbf084..3865e24 100644
---- a/packages/mesquite/CMakeLists.txt
-+++ b/packages/mesquite/CMakeLists.txt
-@@ -25,7 +25,7 @@ ELSE()
-   #
-
-   TRIBITS_PACKAGE(Mesquite DISABLE_STRONG_WARNINGS)
--  SET( ${PACKAGE_NAME}_ENABLE_TESTS ${Trilinos_ENABLE_TESTS} )
-+  # SET( ${PACKAGE_NAME}_ENABLE_TESTS ${Trilinos_ENABLE_TESTS} )
-
- ENDIF()
-
-diff --git a/packages/didasko/examples/hypre/hypre_Helpers.cpp b/packages/didasko/examples/hypre/hypre_Helpers.cpp
-index 1bf1b2c..793e218 100644
---- a/packages/didasko/examples/hypre/hypre_Helpers.cpp
-+++ b/packages/didasko/examples/hypre/hypre_Helpers.cpp
-@@ -60,7 +60,7 @@
-
- using Teuchos::RCP;
- using Teuchos::rcp;
--EpetraExt_HypreIJMatrix::EpetraExt_HypreIJMatrix* newHypreMatrix(const int N)
-+EpetraExt_HypreIJMatrix* newHypreMatrix(const int N)
- {
-   HYPRE_IJMatrix Matrix;
-   int ierr = 0;
-@@ -117,7 +117,7 @@ EpetraExt_HypreIJMatrix::EpetraExt_HypreIJMatrix* newHypreMatrix(const int N)
-   return RetMat;
- }
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* newCrsMatrix(int N){
-+Epetra_CrsMatrix* newCrsMatrix(int N){
-
-   Epetra_MpiComm Comm(MPI_COMM_WORLD);
-
-@@ -138,7 +138,7 @@ Epetra_CrsMatrix::Epetra_CrsMatrix* newCrsMatrix(int N){
-   return Matrix;
- }
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix *Matrix)
-+Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix *Matrix)
- {
-   int N = Matrix->NumGlobalRows();
-   Epetra_CrsMatrix* TestMat = new Epetra_CrsMatrix(Copy, Matrix->RowMatrixRowMap(), Matrix->RowMatrixColMap(), N, false);
-diff --git a/packages/didasko/examples/hypre/hypre_Helpers.hpp b/packages/didasko/examples/hypre/hypre_Helpers.hpp
-index 930719e..70ac59f 100644
---- a/packages/didasko/examples/hypre/hypre_Helpers.hpp
-+++ b/packages/didasko/examples/hypre/hypre_Helpers.hpp
-@@ -51,11 +51,11 @@
-
- #include <string>
-
--EpetraExt_HypreIJMatrix::EpetraExt_HypreIJMatrix* newHypreMatrix(int N);
-+EpetraExt_HypreIJMatrix* newHypreMatrix(int N);
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* newCrsMatrix(int N);
-+Epetra_CrsMatrix* newCrsMatrix(int N);
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix &Matrix);
-+Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix &Matrix);
-
- bool EquivalentVectors(Epetra_MultiVector &X, Epetra_MultiVector &Y, double tol);

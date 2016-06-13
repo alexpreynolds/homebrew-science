@@ -6,15 +6,20 @@ end
 
 class R < Formula
   desc "Software environment for statistical computing"
-  homepage "http://www.r-project.org/"
-  url "http://cran.rstudio.com/src/base/R-3/R-3.2.3.tar.gz"
-  mirror "http://cran.r-project.org/src/base/R-3/R-3.2.3.tar.gz"
-  sha256 "b93b7d878138279234160f007cb9b7f81b8a72c012a15566e9ec5395cfd9b6c1"
+  homepage "https://www.r-project.org/"
+  url "https://cran.rstudio.com/src/base/R-3/R-3.3.0.tar.gz"
+  mirror "https://cran.r-project.org/src/base/R-3/R-3.3.0.tar.gz"
+  sha256 "9256b154b1a5993d844bee7b1955cd49c99ad72cef03cce3cd1bdca1310311e4"
+  revision 1
+
+  # Do not remove executable permission from these scripts.
+  # See https://github.com/Linuxbrew/linuxbrew/issues/614
+  skip_clean "lib/R/bin" unless OS.mac?
 
   bottle do
-    sha256 "5e77ebc09a78586d6b5109204280543de40dc698e7d09ae222ff1871b8345526" => :el_capitan
-    sha256 "cc6f0e38e7f572883c650b35a8992e0083ce6c25c6e87d14e3dfbfbbea0b3e2e" => :yosemite
-    sha256 "d048074b9f5c7750142889d76cdea04245fe6e295e5a50dd98a3743cbb71fdeb" => :mavericks
+    sha256 "9a6dfc72a9d4a013b57aa715fc593335d347057c1d5abee83cf3a4657ad2eb95" => :el_capitan
+    sha256 "c76212713cf7ef663643f876e3f5e36042ff55c7c0ad9052884b90aec4e55707" => :yosemite
+    sha256 "eb2621ae404b12ffdb8f981f1f2df8431e7bb703d3f478ce65c4c7525d1d8049" => :mavericks
   end
 
   head do
@@ -23,9 +28,11 @@ class R < Formula
   end
 
   option "without-accelerate", "Build without the Accelerate framework (use Rblas)"
-  option "without-check", "Skip build-time tests (not recommended)"
+  option "without-test", "Skip build-time tests (not recommended)"
   option "without-tcltk", "Build without Tcl/Tk"
   option "with-librmath-only", "Only build standalone libRmath library"
+
+  deprecated_option "without-check" => "without-test"
 
   depends_on "pkg-config" => :build
   depends_on "texinfo" => :build
@@ -46,13 +53,6 @@ class R < Formula
   cairo_opts = build.with?("x11") ? ["with-x11"] : []
   cairo_opts << :optional if OS.linux?
   depends_on "cairo" => cairo_opts
-
-  # This is the same script that Debian packages use.
-  resource "completion" do
-    url "https://rcompletion.googlecode.com/svn-history/r31/trunk/bash_completion/R", :using => :curl
-    sha256 "2b5cac905ab5dd4889e8a356bbdf2dddff60f718a4104b169e48ca856716e705"
-    version "r31"
-  end
 
   patch :DATA
 
@@ -139,11 +139,10 @@ class R < Formula
 
       # make Homebrew packages discoverable for R CMD INSTALL
       inreplace r_home/"etc/Makeconf" do |s|
-        s.gsub! /CPPFLAGS =.*/, "\\0 -I#{HOMEBREW_PREFIX}/include"
-        s.gsub! /LDFLAGS =.*/, "\\0 -L#{HOMEBREW_PREFIX}/lib"
+        s.gsub! /^CPPFLAGS =.*/, "\\0 -I#{HOMEBREW_PREFIX}/include"
+        s.gsub! /^LDFLAGS =.*/, "\\0 -L#{HOMEBREW_PREFIX}/lib"
+        s.gsub! /.LDFLAGS =.*/, "\\0 $(LDFLAGS)"
       end
-
-      bash_completion.install resource("completion")
 
       prefix.install "make-check.log" if build.with? "check"
     end
@@ -174,8 +173,8 @@ class R < Formula
         R CMD javareconf JAVA_CPPFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Headers
       If you've installed a version of Java other than the default, you might need to instead use:
         R CMD javareconf JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers -I/Library/Java/JavaVirtualMachines/jdk<version>.jdk/"
-      (where <version> can be found by running `java -version`, `/usr/libexec/java_home`, or `locate jni.h`), or:
-        R CMD javareconf JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers -I$(/usr/libexec/java_home | grep -o '.*jdk')"
+      (where <version> can be found by running `java -version`, `/usr/libexec/java#{'_'}home`, or `locate jni.h`), or:
+        R CMD javareconf JAVA_CPPFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers -I$(/usr/libexec/java#{'_'}home | grep -o '.*jdk')"
       EOS
     end
   end
@@ -188,7 +187,10 @@ class R < Formula
   end
 
   def installed_short_version
+    old_rhome = ENV.delete "R_HOME" # Rscript prints garbage if R_HOME is set
     `#{bin}/Rscript -e 'cat(as.character(getRversion()[1,1:2]))'`.strip
+  ensure
+    ENV["R_HOME"] = old_rhome
   end
 
   def r_home

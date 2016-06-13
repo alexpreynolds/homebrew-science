@@ -3,13 +3,13 @@ class Statismo < Formula
   url "https://github.com/statismo/statismo/archive/v0.11.0.tar.gz"
   sha256 "f9b7109996d9e42e48b07923ea6edacca57b8ac7c573de1c905dbba921385c4c"
   head "https://github.com/statismo/statismo.git"
-  revision 1
+  revision 3
 
   bottle do
     cellar :any
-    sha256 "9f27fa13e22f3e7c6e47048c0410cf33329b56d3f0eab0498c7a3f33dd1801b0" => :el_capitan
-    sha256 "3a87e2a46a485b734d52d30c8ee8455775bea1b2f8b705aa1000b999480a101e" => :yosemite
-    sha256 "a54ce11f390f164e5839deee20970a4403f29eaa7904797a5259034430a4e041" => :mavericks
+    sha256 "87dc29eaf143b471f36d6feb416351bbbb094b576e3e23e52fe1bc093efcb9a2" => :el_capitan
+    sha256 "6cfa1344f3d31be32ce9be0b8c15cbacac1a217c33391615291e00287b6ae2c1" => :yosemite
+    sha256 "4e8337ebd0b3bf9eb5e50c8dc7ebae55f9dd23054b639ab51fabb7e02c209e95" => :mavericks
   end
 
   depends_on "cmake" => :build

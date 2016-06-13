@@ -1,21 +1,18 @@
 class Clfft < Formula
   desc "FFT functions written in OpenCL"
   homepage "https://github.com/clMathLibraries/clFFT/"
-  url "https://github.com/clMathLibraries/clFFT/archive/v2.8.tar.gz"
-  sha256 "9964b537f0af121560e64cb5a2513b153511ca85e011f23a332c45cc66f3d60a"
+  url "https://github.com/clMathLibraries/clFFT/archive/v2.10.0.tar.gz"
+  sha256 "f70d8ae7b8c38f27b4f28e5e7abe55378e18c4f1c5cf8922b561dc908d36ffdc"
 
   bottle do
     cellar :any
-    sha256 "615b58ba255381b82f90d63866ba6c6431a45c7af6226569c25176c835e688b6" => :el_capitan
-    sha256 "0b6ca452b5ea924d320c5e9971b593d80ecb360656021effb38ad0237c358b29" => :yosemite
-    sha256 "f5c2aa97b3cf6add9d2c528d84c4744ff970b65e23aa63586a3c4c10d3bcaa4f" => :mavericks
+    sha256 "05bc1e1fcd00e72b62a49248c571cb4c52bf16811300ef42712bb2591d1cb5ef" => :el_capitan
+    sha256 "ab68153761222e6a665860760dc6ea0505f800b7f04f531739feaa289e55513f" => :yosemite
+    sha256 "98835e913cea712dda7a263b23748cc242b2408276fd2cde3536dbc868dc1cca" => :mavericks
   end
 
   depends_on "cmake" => :build
   depends_on "boost" => :build
-
-  # https://github.com/clMathLibraries/clFFT/pull/127
-  patch :DATA
 
   def install
     mkdir "build"
@@ -31,39 +28,3 @@ class Clfft < Formula
     assert_match "(120.000000, 360.000000)", `./fft1d`
   end
 end
-
-__END__
-diff --git a/src/callback-client/client.h b/src/callback-client/client.h
-index 1b75e29..31c0264 100644
---- a/src/callback-client/client.h
-+++ b/src/callback-client/client.h
-@@ -93,6 +93,29 @@ public:
-     }
- };
-
-+#elif defined(__APPLE__) || defined(__MACOSX)
-+
-+#include <mach/clock.h>
-+#include <mach/mach.h>
-+
-+struct Timer
-+{
-+    clock_serv_t clock;
-+    mach_timespec_t start, end;
-+
-+public:
-+    Timer() { host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock); }
-+    ~Timer() { mach_port_deallocate(mach_task_self(), clock); }
-+
-+    void Start() { clock_get_time(clock, &start); }
-+    double Sample()
-+    {
-+        clock_get_time(clock, &end);
-+        double time = 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
-+        return time * 1E-9;
-+    }
-+};
-+
- #else
-
- #include <time.h>

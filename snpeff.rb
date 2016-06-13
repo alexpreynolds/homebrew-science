@@ -4,16 +4,16 @@ class Snpeff < Formula
   # tag "bioinformatics"
   # doi "10.4161/fly.19695"
 
-  url "https://downloads.sourceforge.net/project/snpeff/snpEff_v4_1l_core.zip"
-  version "4.1l"
-  revision 2
-  sha256 "1d5b2831c631a175b88bac57aefddea6f79588ef2ccbac8505f66e0961e54bf5"
+  url "https://downloads.sourceforge.net/project/snpeff/snpEff_v4_2_core.zip"
+  version "4.2"
+  sha256 "4fc6d9fce23dc50f264b70a72b5f824fad859c1e443c69917057e263b6ad2c04"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "cfb7757c173a7565a0c7f0c6331fb6a6c9385b4a8e46a8f12f057e45a9dab844" => :el_capitan
-    sha256 "ad019bfc66c455a4e596d9f454e3fd21dd91f38fd52e79a4d7fe474da18cb6a4" => :yosemite
-    sha256 "2b3f6e9d9befd1312ea04883c9c845fbdd4990ae56b4d531a3311bfb23fd6e1e" => :mavericks
+    sha256 "f0103663f65d35f02fc49c38201947bfd11b0dcd9fab2eb33f9cb90c0724f064" => :el_capitan
+    sha256 "740d12347a796f3f09419adf61a0d348684cd877a4ca079059dcb3135fc20664" => :yosemite
+    sha256 "5fee025eae06b67c9eeb3e09a2105edf4e01eb7126216761183cfd0ef54d5266" => :mavericks
+    sha256 "e349272665f4be6cb103b9b27c6e5bd366ef6d3735fa2543bff013be3c1606d3" => :x86_64_linux
   end
 
   depends_on :java => "1.7+"
@@ -32,7 +32,7 @@ class Snpeff < Formula
 
   def caveats; <<-EOS.undent
       Download the human database using the command
-          snpEff download -v GRCh38.76
+          snpEff download -v GRCh38.82
       The databases will be installed in #{pkgshare}/data
     EOS
   end

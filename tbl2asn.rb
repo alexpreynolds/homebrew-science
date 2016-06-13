@@ -2,21 +2,21 @@ class Tbl2asn < Formula
   homepage "https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/"
   # tag "bioinformatics"
 
-  version "24.3"
+  version "24.9"
   if OS.mac?
     url "ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/mac.tbl2asn.gz"
-    sha256 "1e7052673a26a55cf710bad58245af3a2534358d368e2077a17fed8ff13bbc32"
+    sha256 "3d3575cfd93f08e24432df2c3b0c9ac8c58546462ed70c9ee371d1e8dcd27a85"
   elsif OS.linux?
     url "ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/tbl2asn/linux64.tbl2asn.gz"
-    sha256 "00265752e4b69f17e2e1066e42187bf0f65126ce3a2c6ac4bc2fd6ddae139163"
+    sha256 "730d9bcf6d654e2395d19e529f01a4f670030633129ceea2dbf6e4850e42aa2a"
   end
 
   bottle do
-    cellar :any
-    revision 1
-    sha256 "7334c59c85df90646a14652275e756c4726d4e58003f940d98bd5f9d582442d7" => :yosemite
-    sha256 "3cccf7c5e9a3838417806595462c8923c84194dba5a65485c0beaaf2d85cf9da" => :mavericks
-    sha256 "136ae8998d9a0d121445f3213374c260c6d0cc9c491df2af00afd9b724acd73a" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "46ee9b013b621f4853dc3c07f5d5289b083eb500e9609ab87ce0ef204973d8ed" => :el_capitan
+    sha256 "fe9d754a97c7e313fee8e0ac0883dd635645dd9eea44f4da3dac4047669b2b6c" => :yosemite
+    sha256 "4c12f59c562e6153ef2f34cead09a5331b15296be16423347ae9d4a9c1d826f9" => :mavericks
+    sha256 "de337431a34cf93ed60a47b4327022452202c9ba648584b07edfdfaa8786c284" => :x86_64_linux
   end
 
   resource "doc" do

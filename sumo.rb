@@ -1,14 +1,14 @@
 class Sumo < Formula
   desc "Simulation of Urban Mobility"
   homepage "https://sourceforge.net/projects/sumo/"
-  url "https://downloads.sourceforge.net/project/sumo/sumo/version%200.24.0/sumo-all-0.24.0.tar.gz"
-  sha256 "26e5e91fbd8fc38553418599909164d6f44a04ccdf5f365c6feb0cc4365ba51f"
+  url "https://downloads.sourceforge.net/project/sumo/sumo/version%200.25.0/sumo-all-0.25.0.tar.gz"
+  sha256 "e56552e4cd997ccab59b5c6828ca1e044e71e3ffe8c780831bf5aa18c5fdd18a"
 
   bottle do
     cellar :any
-    sha256 "79ba8ce68da22635d6202bc4620e1489f340f60239393724a1e1992b3de66666" => :el_capitan
-    sha256 "c3be9c6dbd087fe7ab06613a1275b94704128b2d299fa99869b65e104f6d3004" => :yosemite
-    sha256 "8c6b1567a2d2519875fdb0479ad392600b11cb17aa8138ab71260e2d63ea0927" => :mavericks
+    sha256 "60e40e20adc9983d0ddf124b256ac5c1fd50ad7fccc1b27c703edc56d469231f" => :el_capitan
+    sha256 "1d68c7d7c1955bd548c2e02b70607798e644a073568069121d0d6946c927be60" => :yosemite
+    sha256 "ead5586821fcf6e32a1d8bbfe040b1f6349973f7963559fb0d44321f3ed84af1" => :mavericks
   end
 
   option "with-check", "Enable additional build-time checking"

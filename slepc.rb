@@ -1,21 +1,23 @@
 class Slepc < Formula
   desc "Scalable Library for Eigenvalue Computations"
   homepage "http://www.grycap.upv.es/slepc"
-  url "http://slepc.upv.es/download/download.php?filename=slepc-3.6.2.tar.gz"
-  sha256 "2ab4311bed26ccf7771818665991b2ea3a9b15f97e29fd13911ab1293e8e65df"
+  url "http://slepc.upv.es/download/download.php?filename=slepc-3.7.1.tar.gz"
+  sha256 "670216f263e3074b21e0623c01bc0f562fdc0bffcd7bd42dd5d8edbe73a532c2"
 
   bottle do
-    sha256 "33de659b0fa2c3fb8d82e8a6d263c98f03c9dfa1f83dc6c6b08da9cac37028c0" => :el_capitan
-    sha256 "3fcbb597f9a2065b4984b17684e9f96d7ee9c7084a21278c525235e2c7577953" => :yosemite
-    sha256 "91b42c002c71169ec2bf8fe38dab922afaaee962d8d30bedcb62e3159126ee09" => :mavericks
+    sha256 "5cb05e786af827d4ffca8443f65c8055024d22ecfa391d56d0d7e3fcdebfcb17" => :el_capitan
+    sha256 "d3d6362f4299f176ff2fc694abca7902264b6936852b681880a798d52ea59286" => :yosemite
+    sha256 "a33a77cfb31176b2031f12da49953c4090159356dc9e595ecf86a3a821a87244" => :mavericks
   end
 
   deprecated_option "complex" => "with-complex"
 
   option "with-complex", "Use complex version by default. Otherwise, real-valued version will be symlinked"
-  option "without-check", "Skip run-time tests (not recommended)"
+  option "without-test", "Skip run-time tests (not recommended)"
   option "with-openblas", "Install dependencies with openblas"
   option "with-blopex", "Download blopex library"
+
+  deprecated_option "without-check" => "without-test"
 
   openblasdep = (build.with? "openblas") ? ["with-openblas"] : []
 
@@ -41,14 +43,7 @@ class Slepc < Formula
     ENV["PETSC_DIR"] = "#{Formula["petsc"].opt_prefix}/#{petsc_arch_real}"
     system "./configure", "--prefix=#{prefix}/#{petsc_arch_real}", *args
     system "make"
-    if build.with? "check"
-      log_name = "make-test-real.log"
-      system "make test 2>&1 | tee #{log_name}"
-      ohai `grep "Completed test" "#{log_name}"`.chomp
-      prefix.install "#{log_name}"
-    end
-
-    system "make", "test" if build.with? "check"
+    system "make", "test" if build.with? "test"
     system "make", "install"
 
     # complex
@@ -56,12 +51,7 @@ class Slepc < Formula
     system "./configure", "--prefix=#{prefix}/#{petsc_arch_complex}", *args
     system "make"
     # TODO: investigate why complex tests fail to run on Linuxbrew
-    if build.with? "check"
-      log_name = "make-test-complex.log"
-      system "make test 2>&1 | tee #{log_name}"
-      ohai `grep "Completed test" "#{log_name}"`.chomp
-      prefix.install "#{log_name}"
-    end
+    system "make", "test" if build.with? "test"
     system "make", "install"
 
     # Link what we need.
@@ -76,9 +66,6 @@ class Slepc < Formula
 
     # install some tutorials for use in test block
     pkgshare.install "src/eps/examples/tutorials"
-
-    # fix install name on OS-X
-    system "install_name_tool", "-id", "#{opt_prefix}/lib/libslepc.3.6.dylib", "#{prefix}/#{petsc_arch}/lib/libslepc.3.6.2.dylib" if OS.mac?
   end
 
   def caveats; <<-EOS.undent
@@ -92,7 +79,9 @@ class Slepc < Formula
     Dir.chdir("tutorials") do
       system "mpicc", "ex1.c", "-I#{opt_include}", "-I#{Formula["petsc"].opt_include}", "-L#{Formula["petsc"].opt_lib}", "-lpetsc", "-L#{opt_lib}", "-lslepc", "-o", "ex1"
       system "mpirun -np 3 ex1 2>&1 | tee ex1.out"
-      assert (identical?("output/ex1_1.out", "ex1.out"))
+      `cat ex1.out | tail -3 | awk '{print $NF}'`.split.each do |val|
+        assert val.to_f < 1.0e-8
+      end
     end
   end
 end

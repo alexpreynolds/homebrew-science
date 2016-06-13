@@ -68,13 +68,13 @@ Avoid refering to `HOMEBREW_PREFIX` in a formula. If you need to refer to depend
 
 #### OpenMP
 
-The current version of clang, Homebrew's default C/C++ compiler, does not support OpenMP, but GCC does. Here's an example of alerting the user that OpenMP will not be enabled if using clang:
+The current version of clang, Homebrew's default C/C++ compiler, does not support OpenMP, but GCC does.
 
-    opoo "clang does not support OpenMP. Compile with gcc if this is not acceptable." if ENV.compiler == :clang
-
-This snippet will not abort compilation but output a warning message.
-
-If OpenMP support is obligatory, `needs :cxx11` may be used to avoid building with clang/LLVM altogether.
+If OpenMP support is obligatory, `needs :openmp` may be used to avoid building with clang/LLVM altogether. If it is optional, one may use
+```
+options "with-openmp", "Build with OpenMP support"
+needs :openmp if build.with? "openmp"
+```
 
 #### MPI
 
@@ -82,7 +82,7 @@ Depending on `:mpi` is more flexible than depending directly on `mpich2` or `ope
 
 #### Checking What Options Were Used to Build a Dependency
 
-    nprocs = Tab.for_formula("foo").without?("mpi") ? 1 : 2
+    nprocs = Tab.for_formula("foo").without?("mpi") ? 1 : Hardware::CPU.cores
 
 ## Suggestions
 
@@ -90,13 +90,13 @@ Improvements to this guide are appreciated via issues or pull requests. If you'r
 
 [Homebrew Science]: https://github.com/Homebrew/homebrew-science
 [open pull requests]: https://github.com/Homebrew/homebrew-science/pulls
-[How To Open a Homebrew Pull Request (and get it merged)]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/How-To-Open-a-Homebrew-Pull-Request-(and-get-it-merged).md
-[Interesting Taps & Branches]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Interesting-Taps-%26-Branches.md#interesting-taps--branches
-[Formula revision]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Formula-Cookbook.md#formulae-revisions
-[Bottles]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Bottles.md
-[Brew Test Bot]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Brew-Test-Bot.md#brew-test-bot
+[How To Open a Homebrew Pull Request (and get it merged)]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/How-To-Open-a-Homebrew-Pull-Request-(and-get-it-merged).md
+[Interesting Taps & Branches]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Interesting-Taps-%26-Branches.md#interesting-taps--branches
+[Formula revision]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Formula-Cookbook.md#formulae-revisions
+[Bottles]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Bottles.md
+[Brew Test Bot]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Brew-Test-Bot.md#brew-test-bot
 [GitHub Ruby Styleguide]: https://github.com/styleguide/ruby
-[Formula Cookbook]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Formula-Cookbook.md
-[Acceptable Formulae]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Acceptable-Formulae.md
-[Python for Formula Authors]: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Python-for-Formula-Authors.md
+[Formula Cookbook]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Formula-Cookbook.md
+[Acceptable Formulae]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Acceptable-Formulae.md
+[Python for Formula Authors]: https://github.com/Homebrew/brew/blob/master/share/doc/homebrew/Python-for-Formula-Authors.md
 [Gist]: https://gist.github.com/

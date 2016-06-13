@@ -1,16 +1,16 @@
 class Openimageio < Formula
   desc "Library for reading, processing and writing images"
   homepage "http://openimageio.org"
-  url "https://github.com/OpenImageIO/oiio/archive/Release-1.6.9.tar.gz"
-  sha256 "818ccebd851dd7cf15130ff22f26bb31db127176230ff3a5b8a844813049cd23"
+  url "https://github.com/OpenImageIO/oiio/archive/Release-1.6.13.tar.gz"
+  sha256 "b2989df4133d84c9b24e2b67ae8780528a49b6c088ce945e15ecefc31235a39b"
 
   head "https://github.com/OpenImageIO/oiio.git"
 
   bottle do
     cellar :any
-    sha256 "af34b7c73a520cd7c9d6dd9aeea71d3b6eca4e80c544fe5cb13c3384460b9463" => :el_capitan
-    sha256 "ba714f5643633647bf78f2157f52381ce2f50895ecea4d36c5c67a75623aab7c" => :yosemite
-    sha256 "d9183e70e10f8c9698da0b9588e547bee633c2bdef781bca22ba91008be3a3a7" => :mavericks
+    sha256 "62d601333afdc040411a78b45b468ab1e278468efc4d069a8723564386489b40" => :el_capitan
+    sha256 "10459d45ab61b253c3862879dbfa8a9d49ba9022033fb74832a3b64c1bfa1937" => :yosemite
+    sha256 "aa6708c91fa8ef3de1b8254b23983a5c5e5c317e6e353bde056204a2eee3f58e" => :mavericks
   end
 
   option "with-test", "Dowload 95MB of test images and verify Oiio (~2 min)"
@@ -141,12 +141,12 @@ class Openimageio < Formula
     system "make", *args
     system "make", "test" if build.with? "test"
     cd "dist/macosx" do
-      (lib/"python#{pyver}").install "lib/python/site-packages"
-      (lib/"python#{py3ver}").install "lib/python3/site-packages" if build.with? :python3
+      (lib/"python#{pyver}").install "python"
+      (lib/"python#{py3ver}").install "python3" if build.with? :python3
       prefix.install %w[bin include]
       lib.install Dir["lib/lib*"]
-      doc.install "share/doc/openimageio/openimageio.pdf"
-      prefix.install Dir["share/doc/openimageio/*"]
+      doc.install "doc/openimageio.pdf"
+      prefix.install Dir["doc/*"]
     end
   end
 

@@ -1,17 +1,19 @@
 class Ipopt < Formula
+  desc "Large-scale nonlinear optimization package"
   homepage "https://projects.coin-or.org/Ipopt"
-  url "http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.1.tgz"
-  sha256 "d6c18f7c5bf486712b493167d27ec6e940ad376c5b903b97acc5a3ade1c0a3ef"
+  url "http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.5.tgz"
+  sha256 "53e7af6eefcb6de1f8e936c9c887c7bcb5a9fa4fcf7673a227f16de131147325"
   head "https://projects.coin-or.org/svn/Ipopt/trunk", :using => :svn
-  revision 3
 
   bottle do
-    sha256 "129d9e418612d9771f509d1c3c7c349fc23e6ca9955ee2af6a38456660a4690d" => :yosemite
-    sha256 "afa33eb1ac04988d72eb0a01874df8aaf4c0b394efee678457b672bab69910c1" => :mavericks
-    sha256 "f705d7a6a0f743a1618baa28754d4edd44bba3ddd76d675f8f3118745157cdc9" => :mountain_lion
+    cellar :any
+    sha256 "8a062e28570c0a66fcefdc5109855d3e26f68beadea9763346a1680cc3772ff2" => :el_capitan
+    sha256 "f82ae72c4083adba2511fdcef19794e27e6d65c13e8fa221f38187300170ddab" => :yosemite
+    sha256 "81fd7abec9c258763401984eca14ca3abe53a9c611f1ed9ec15be4b8510b71c1" => :mavericks
   end
 
-  option "without-check", "Skip build-time tests (not recommended)"
+  option "without-test", "Skip build-time tests (not recommended)"
+  deprecated_option "without-check" => "without-test"
 
   depends_on "asl" => :recommended
   depends_on "openblas" => :optional
@@ -53,7 +55,7 @@ class Ipopt < Formula
     system "./configure", *args
     system "make"
     ENV.deparallelize # Needs a serialized install
-    system "make", "test" if build.with? "check"
+    system "make", "test" if build.with? "test"
     system "make", "install"
   end
 

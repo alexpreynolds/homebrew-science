@@ -1,22 +1,20 @@
 class Insighttoolkit < Formula
   desc "ITK is a toolkit for performing registration and segmentation"
   homepage "http://www.itk.org"
-  url "https://downloads.sourceforge.net/project/itk/itk/4.8/InsightToolkit-4.8.2.tar.gz"
-  sha256 "d8d5e3aea700588c60b01418c440b2d95b517ea18dd4c834c5164354e53596af"
+  url "https://downloads.sourceforge.net/project/itk/itk/4.10/InsightToolkit-4.10.0.tar.gz"
+  sha256 "2ede59a95c4864885c863365f9df9371c39d2b31a545e3da6bda800249840168"
   head "git://itk.org/ITK.git"
-  revision 1
 
   bottle do
-    sha256 "753004df98cde4ee7706d826491214b605e7957bd994ed6876285a3d92304311" => :el_capitan
-    sha256 "deea79ac34044ccbcbd304bcc741a9f4f515e45bb8299dc50908102e3c88ce23" => :yosemite
-    sha256 "543417219a280ebe94429ef8eef6d96a6fa1fd967be06baab776aab44929caf5" => :mavericks
+    sha256 "ca3455b3cda713a3bd65fe4e126b49d1adb47d23f8593131199ec61530cafa2f" => :el_capitan
+    sha256 "ebf291a054a45a17b4a07ea804083e0b45505bedf63080e649ee9a283e1d0258" => :yosemite
+    sha256 "73c5baa18e60f4fbed4b1682faafe8c41a02ca13297d98d12860a4e617d342c8" => :mavericks
   end
 
   option :cxx11
-  cxx11dep = (build.cxx11?) ? ["c++11"] : []
+  cxx11dep = build.cxx11? ? ["c++11"] : []
 
   depends_on "cmake" => :build
-  depends_on "vtk" => [:build] + cxx11dep
   depends_on "opencv" => [:optional] + cxx11dep
   depends_on :python => :optional
   depends_on :python3 => :optional
@@ -26,6 +24,14 @@ class Insighttoolkit < Formula
   depends_on "libpng" => :recommended
   depends_on "libtiff" => :recommended
   depends_on "gdcm" => [:optional] + cxx11dep
+
+  if build.with? "python3"
+    depends_on "vtk" => [:build, "with-python3", "without-python"] + cxx11dep
+  elsif build.with? "python"
+    depends_on "vtk" => [:build, "with-python"] + cxx11dep
+  else
+    depends_on "vtk" => [:build] + cxx11dep
+  end
 
   deprecated_option "examples" => "with-examples"
   deprecated_option "remove-legacy" => "with-remove-legacy"
@@ -58,11 +64,9 @@ class Insighttoolkit < Formula
     args << "-DITK_USE_SYSTEM_TIFF=ON" if build.with? "libtiff"
     args << "-DITK_USE_SYSTEM_GDCM=ON" if build.with? "gdcm"
     args << "-DITK_LEGACY_REMOVE=ON" if build.include? "remove-legacy"
-
-    # These 3 modules are not supported with python3. Set them to OFF in this case.
-    args << "-DModule_ITKLevelSetsv4Visualization=" + ((build.with? "python3") ? "OFF" : "ON")
-    args << "-DModule_ITKReview=" + ((build.with? "python3") ? "OFF" : "ON")
-    args << "-DModule_ITKVtkGlue=" + ((build.with? "python3") ? "OFF" : "ON")
+    args << "-DModule_ITKLevelSetsv4Visualization=ON"
+    args << "-DModule_ITKReview=ON"
+    args << "-DModule_ITKVtkGlue=ON"
 
     args << "-DVCL_INCLUDE_CXX_0X=ON" if build.cxx11?
     ENV.cxx11 if build.cxx11?

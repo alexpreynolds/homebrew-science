@@ -1,20 +1,19 @@
 class Abinit < Formula
+  desc "Atomic-scale first-principles simulation software"
   homepage "http://www.abinit.org"
-  url "http://ftp.abinit.org/abinit-7.10.4.tar.gz"
-  sha256 "ebd0a3abd01db4374beda092d1f16c9e00d327712b1ed389bb32e1c80f37c6ef"
-  revision 2
+  url "http://ftp.abinit.org/abinit-8.0.7.tar.gz"
+  sha256 "9df2fe572af39cef937a4134d569321b99c6670f187edbac9b355ff2defd5afc"
+  revision 1
 
   bottle do
     cellar :any
-    sha256 "8a2038a8b58b020cb5c7cdbcda7217477a2f4cda4601166aaf83323a9ba1abb7" => :el_capitan
-    sha256 "f8aefef831a3a767e697fdb0cd50db3ec28378de8a2e046a0e1fdeafb87f5752" => :yosemite
-    sha256 "fd11b9954e0b54b71bf2df8422eabad0089753cb9440adcd3aecb362a20ac189" => :mavericks
+    sha256 "820d0f4bf0b9e64dec6c8ef3f4e4ad12c5caf448f880834bfb4cef2891098453" => :el_capitan
+    sha256 "c929dcbf0b62f6b8a4a0edc255204df42df39a7dc61309c82bbaae1ad4b7563d" => :yosemite
+    sha256 "9184e1d02eba8e1e69cab992cd2a5a9cb0d758b1b3b70368b55d74682c902085" => :mavericks
   end
 
-  option "without-check", "Skip build-time tests (not recommended)"
+  option "without-test", "Skip build-time tests (not recommended)"
   option "with-testsuite", "Run full test suite (time consuming)"
-
-  depends_on "cmake" => :build
 
   depends_on :mpi => [:cc, :cxx, :f77, :f90]
   depends_on :fortran
@@ -41,8 +40,7 @@ class Abinit < Formula
               --with-mpi-prefix=#{HOMEBREW_PREFIX}
               --enable-optim=safe
               --enable-openmp=no
-              --enable-gw-dpc
-           ]
+              --enable-gw-dpc]
 
     dft_flavor = "none"
     trio_flavor = "none"
@@ -78,10 +76,6 @@ class Abinit < Formula
       dft_flavor = "libxc"
       args << "--with-libxc-incs=-I#{Formula["libxc"].opt_include}"
       args << "--with-libxc-libs=-L#{Formula["libxc"].opt_lib} -lxc -lxcf90"
-      # Patch to make libXC 2.2+ supported by Abinit 7.10;
-      # libXC 2.2 will be supported in Abinit 8.0
-      inreplace "configure", "(major != 2) || (minor < 0) || (minor > 1)",
-                             "(major != 2) || (minor < 2) || (minor > 3)"
     end
 
     # need to link against single precision as well, see https://trac.macports.org/ticket/45617 and http://forum.abinit.org/viewtopic.php?f=3&t=2631
@@ -97,10 +91,10 @@ class Abinit < Formula
     system "./configure", *args
     system "make"
 
-    if build.with? "check"
+    if build.with? "test"
       cd "tests"
       if build.with? "testsuite"
-        system "./runtests.py -n 3 2>&1 | tee make-check.log"
+        system "./runtests.py 2>&1 | tee make-check.log"
       else
         system "./runtests.py built-in fast 2>&1 | tee make-check.log"
       end

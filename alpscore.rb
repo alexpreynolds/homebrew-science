@@ -1,19 +1,19 @@
 class Alpscore < Formula
   desc "Applications and Libraries for Physics Simulations"
   homepage "http://alpscore.org"
-  url "https://github.com/ALPSCore/ALPSCore/archive/v0.5.1.tar.gz"
-  sha256 "a99b34cf7b5c2d48ea7d888e229b296908adea7ed5118bf1b28888f42295f385"
+  url "https://github.com/ALPSCore/ALPSCore/archive/v0.5.4.tar.gz"
+  sha256 "909e6a06673e7fa0d6c985f46ecf0090ca7a5ff682002fe63b0270c578ca3b82"
   head "https://github.com/ALPSCore/ALPSCore.git"
 
   bottle do
     cellar :any
-    sha256 "06c6577d69e33fd0c724219a8b0d2a035e807839c2cc32158152d2ad411fbb01" => :el_capitan
-    sha256 "412ad3f5b19f9770a4fb68d1e9236a0a110197594567b843108e5fbe739bedd1" => :yosemite
-    sha256 "18f7f7b892857994a42b088187bffe452f292c633d4e08a6cd5636531c27c935" => :mavericks
+    sha256 "8091e2eb39dfd5d32075e64df0d70dd3bf239d7e90c57eac76c5325c8a7263dd" => :el_capitan
+    sha256 "8662412529882363571627355d8df2258b9a862481657b463e51f40f0d9124c6" => :yosemite
+    sha256 "1667f02000164749a132326fb142fd6863bc30caea32ef986b164952e924fce6" => :mavericks
   end
 
   option :cxx11
-  option "with-check",  "Build and run shipped tests"
+  option "with-test",   "Build and run shipped tests"
   option "with-doc",    "Build documentation"
   option "with-static", "Build static instead of shared libraries"
 
@@ -21,7 +21,6 @@ class Alpscore < Formula
   depends_on :mpi => [:cc, :cxx, :recommended]
 
   boost_options = []
-  boost_options += ["with-mpi", "without-single"] if build.with? "mpi"
   boost_options << "c++11" if build.cxx11?
   depends_on "boost" => boost_options
 
@@ -34,22 +33,22 @@ class Alpscore < Formula
     args << "-DCMAKE_BUILD_TYPE=Release"
 
     if build.with? "static"
-      args << "-DBuildStatic=ON"
-      args << "-DBuildShared=OFF"
+      args << "-DALPS_BUILD_STATIC=ON"
+      args << "-DALPS_BUILD_SHARED=OFF"
     else
-      args << "-DBuildStatic=OFF"
-      args << "-DBuildShared=ON"
+      args << "-DALPS_BUILD_STATIC=OFF"
+      args << "-DALPS_BUILD_SHARED=ON"
     end
 
     args << ("-DENABLE_MPI=" + ((build.with? "mpi") ? "ON" : "OFF"))
     args << ("-DDocumentation=" + ((build.with? "doc") ? "ON" : "OFF"))
-    args << ("-DTesting=" + ((build.with? "check") ? "ON" : "OFF"))
+    args << ("-DTesting=" + ((build.with? "test") ? "ON" : "OFF"))
 
     mkdir "tmp" do
       args << ".."
       system "cmake", *args
       system "make"
-      system "make", "test" if build.with? "check"
+      system "make", "test" if build.with? "test"
       system "make", "install"
     end
   end
@@ -76,7 +75,6 @@ class Alpscore < Formula
                     "-lalps-accumulators", "-lalps-hdf5", "-lalps-utilities", "-lalps-params",
                     "-lboost_filesystem-mt", "-lboost_system-mt", "-lboost_program_options-mt"
                    ]
-    args_compile << "-lboost_mpi-mt" if build.with? "mpi"
     args_compile << "-o" << "test"
     system ((build.with? "mpi") ? "mpicxx" : ENV.cxx), *args_compile
     system "./test"

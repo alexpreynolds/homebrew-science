@@ -1,16 +1,17 @@
 class Cegma < Formula
+  desc "Core eukaryotic genes mapping approach"
   homepage "http://korflab.ucdavis.edu/datasets/cegma/"
   # doi "10.1093/bioinformatics/btm071"
   # tag "bioinformatics"
 
-  url "http://korflab.ucdavis.edu/datasets/cegma/cegma_v2.4.010312.tar.gz"
-  sha256 "86bef227a6782dfcbbf8a3cfe354b358e2245096b41491604c47569b83862469"
+  url "http://korflab.ucdavis.edu/datasets/cegma/CEGMA_v2.5.tar.gz"
+  sha256 "dd7381c0402622645404ea009c66e54f7c915d8b80a16e02b8e17ccdc1859e76"
 
   bottle do
-    cellar :any
-    sha256 "0c1431e39f96a6a1f4cd087ba7b26a23abbbf0555012fb76315203d9b49ed848" => :yosemite
-    sha256 "b7d51836f95651b7a4a03a64783380fa0270fb0f6bdf031f42c0d5079ef42077" => :mavericks
-    sha256 "6d0645051b1c7fa543c324bb948ee4cbff3d5300c42d35db16945dc49cfcafde" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "c0953276f654ad3f2696fd7ddb3c33fa6a61d6765b4b6ac4aae694618fb9a32b" => :el_capitan
+    sha256 "48c10c321a8868e69dd06bef16e48c41d5db331fd2ea460866d3a04770a56259" => :yosemite
+    sha256 "2a827211542d44535a0b1525474e3cee46b950bc12c5f82932e4b84b0384e58f" => :mavericks
   end
 
   depends_on "blast"
@@ -24,8 +25,8 @@ class Cegma < Formula
     system "make", "install", "INSTALLDIR=#{libexec/"bin"}"
     (lib/"perl5/site_perl").install Dir["lib/*.pm"]
     libexec.install "data"
-    doc.install "README"
     bin.install_symlink "../libexec/bin/cegma"
+    prefix.install "release_notes.md"
   end
 
   def caveats; <<-EOS.undent
@@ -36,6 +37,7 @@ class Cegma < Formula
   end
 
   test do
-    system "#{bin}/cegma --help 2>&1 |grep -q cegma"
+    ENV.prepend_path "PERL5LIB", lib/"perl5/site_perl"
+    assert_match version.to_s, shell_output("#{bin}/cegma --help", 1)
   end
 end

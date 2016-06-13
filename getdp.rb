@@ -7,17 +7,19 @@ end
 class Getdp < Formula
   desc "Open source finite element solver using mixed elements."
   homepage "http://www.geuz.org/getdp/"
-  url "http://www.geuz.org/getdp/src/getdp-2.7.0-source.tgz"
-  sha256 "122830b700e4535be3ccba025bad5c7702324639a937b5e79fee6a1e92bd34b2"
+  url "http://www.geuz.org/getdp/src/getdp-2.8.0-source.tgz"
+  sha256 "7941809d01b3b045f70382b719dc1bcfeea9d794ac075771a1e82be0960748dd"
+  revision 1
   head "https://geuz.org/svn/getdp/trunk", :using => GetdpSvnStrategy
 
   bottle do
-    sha256 "f85ee7841765fe4f7c1793433422a600b634882f7ab263ba5507e7ada2a88aa0" => :el_capitan
-    sha256 "9e9e0ccfeb81f75e176bbd6b116aa57c83dac8034255d072c5f8d2219fe99074" => :yosemite
-    sha256 "add45ad67c6dfb619c140f01ce7f856d9645102840f86f345ecd63e149c277c4" => :mavericks
+    sha256 "b2f0dd5ce689ad7e05f99366d226e60081edc5e30befbbb69b3aaece8fb3c29f" => :el_capitan
+    sha256 "fde6273ece93671368c3f543118ca76e9e6f6cdeb9fffc75dae47df5cdcdf51e" => :yosemite
+    sha256 "12efa0266fbef422414208420e63b67e641befd17150ca081298bbc8827f1876" => :mavericks
   end
 
-  option "without-check", "skip build-time tests (not recommended)"
+  option "without-test", "skip build-time tests (not recommended)"
+  deprecated_option "without-check" => "without-test"
 
   depends_on :fortran
   depends_on :mpi => [:cc, :cxx, :f90, :recommended]
@@ -31,6 +33,18 @@ class Getdp < Formula
   depends_on "slepc"    => :recommended
 
   depends_on "cmake"    => :build
+
+  # patches for PETSc >= 3.7
+  # thanks @schoeps
+  patch do
+    url "https://gist.githubusercontent.com/schoeps/53365da617aa6cfac332d0a19235215f/raw/e4df9983682e189bd3a2cb33434a994b45757b8d/EigenSolve.patch"
+    sha256 "1950275890bf8ba1ad23ec80ff012921711fa0f3b5ee16ceac8be27ac356deea"
+  end
+
+  patch do
+    url "https://gist.githubusercontent.com/schoeps/53365da617aa6cfac332d0a19235215f/raw/e4df9983682e189bd3a2cb33434a994b45757b8d/LinAlg_PETSC.patch"
+    sha256 "43c3d0ba87c07846818f147e2ee66110e5b9c9ebd856b0ae682d6d1c014d76c6"
+  end
 
   def install
     args = std_cmake_args

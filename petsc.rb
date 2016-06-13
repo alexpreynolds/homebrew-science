@@ -1,21 +1,22 @@
 class Petsc < Formula
-  desc "Scalable (parallel) solution of scientific applications modeled by partial differential equations"
+  desc "Scalable solution of models that use partial differential equations"
   homepage "http://www.mcs.anl.gov/petsc/index.html"
-  url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz"
-  sha256 "2458956c876496f3c8160591324459be7c11f2e1ce09ad98347394c67a46d858"
+  url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.7.2.tar.gz"
+  sha256 "ad4cdc761ebc337cd1a461c685c7df12cc90b8a805fc1a63e04f7dd2b2c1d949"
   head "https://bitbucket.org/petsc/petsc", :using => :git
 
   bottle do
-    sha256 "06188eddb5ac9af258ea53f71fc9c32a0bad71d8623f9927b3f536a8e17e8d89" => :el_capitan
-    sha256 "80073a95f6cc90cbaa6c6119eb4729f25fb8108e4720f65dea29cf4b60e4c1d5" => :yosemite
-    sha256 "20250b96b6e86c51058a12f8ccd345aaa120e7345f3042fd370ddba4779e854e" => :mavericks
+    sha256 "6a07e7c17188cae2025b8900911ec060eb262d802f6662b32b433db978441a3d" => :el_capitan
+    sha256 "145c5b1a20b18ecef1a0cdcbb1e1f7e476cfe8175aeac47354223aab734b6cf6" => :yosemite
+    sha256 "c10dc904a82aad6b54d5343367d21d2845d6d668048f6f35534980527aada46a" => :mavericks
   end
 
-  option "without-check", "Skip build-time tests (not recommended)"
+  option "without-test", "Skip build-time tests (not recommended)"
   option "with-complex", "Link complex version of PETSc by default."
   option "with-debug", "Build debug version"
   option "with-ml", "Download and build ML (will not symlink if Trilinos is installed)"
 
+  deprecated_option "without-check" => "without-test"
   deprecated_option "complex" => "with-complex"
   deprecated_option "debug"   => "with-debug"
 
@@ -27,7 +28,7 @@ class Petsc < Formula
   depends_on "openblas" => :optional
   openblasdep = (build.with? "openblas") ? ["with-openblas"] : []
 
-  depends_on "superlu43"    => [:recommended] + openblasdep
+  depends_on "superlu"      => [:recommended] + openblasdep
   depends_on "superlu_dist" => [:recommended] + openblasdep
   depends_on "metis"        => :recommended
   depends_on "parmetis"     => :recommended
@@ -53,7 +54,7 @@ class Petsc < Formula
     arch_real="real"
     arch_complex="complex"
 
-    # Environment variables CC, CXX, etc. will be ignored by PETSc.
+    # Environment variables CC, CXX, etc. will be ignored by PETSc
     ENV.delete "CC"
     ENV.delete "CXX"
     ENV.delete "F77"
@@ -65,16 +66,15 @@ class Petsc < Formula
               FC=#{ENV["MPIFC"]}
               --with-shared-libraries=1
               --with-pthread=0
-              --with-openmp=0
-           ]
+              --with-openmp=0]
     args << ("--with-debugging=" + ((build.with? "debug") ? "1" : "0"))
 
-    # We don't dowload anything, don't need to build against openssl
+    # We don't download anything, so no need to build against openssl
     args << "--with-ssl=0"
 
     if build.with? "superlu_dist"
       slud = Formula["superlu_dist"]
-      args << "--with-superlu_dist-include=#{slud.opt_include}/superlu_dist"
+      args << "--with-superlu_dist-include=#{slud.opt_include}"
       args << "--with-superlu_dist-lib=-L#{slud.opt_lib} -lsuperlu_dist"
     end
 
@@ -91,14 +91,14 @@ class Petsc < Formula
     args << "--with-metis-dir=#{oprefix("metis")}" if build.with? "metis"
     args << "--with-parmetis-dir=#{oprefix("parmetis")}" if build.with? "parmetis"
     args << "--with-scalapack-dir=#{oprefix("scalapack")}" if build.with? "scalapack"
-    args << "--with-mumps-dir=#{oprefix("mumps")}" if build.with? "mumps"
+    args << "--with-mumps-dir=#{oprefix("mumps")}/libexec" if build.with? "mumps"
     args << "--with-x=0" if build.without? "x11"
 
-    # if build with openblas, need to provide lapack as well.
+    # If building with openblas, need to provide lapack as well
     if build.with? "openblas"
-      exten = (OS.mac?) ? "dylib" : "so"
-      args << ("--with-blas-lib=#{Formula["openblas"].opt_lib}/libopenblas.#{exten}")
-      args << ("--with-lapack-lib=#{Formula["openblas"].opt_lib}/libopenblas.#{exten}")
+      exten = OS.mac? ? "dylib" : "so"
+      args << "--with-blas-lib=#{Formula["openblas"].opt_lib}/libopenblas.#{exten}"
+      args << "--with-lapack-lib=#{Formula["openblas"].opt_lib}/libopenblas.#{exten}"
     end
 
     # configure fails if those vars are set differently.
@@ -106,9 +106,7 @@ class Petsc < Formula
 
     # real-valued case:
     ENV["PETSC_ARCH"] = arch_real
-    args_real = ["--prefix=#{prefix}/#{arch_real}",
-                 "--with-scalar-type=real",
-                ]
+    args_real = ["--prefix=#{prefix}/#{arch_real}", "--with-scalar-type=real"]
     # TODO: compile separately (https://bitbucket.org/petsc/pkg-ml/commits/tag/v6.2-p3)
     # --with-ml-include=/path/to/ml/include --with-ml-lib=/path/to/ml/liblibml.a
     args_real << "--download-ml=1" if build.with? "ml"
@@ -117,42 +115,26 @@ class Petsc < Formula
     args_real << "--with-hwloc-dir=#{oprefix("hwloc")}" if build.with? "hwloc"
     system "./configure", *(args + args_real)
     system "make", "all"
-    if build.with? "check"
-      log_name = "make-check-" + arch_real + ".log"
-      system "make test 2>&1 | tee #{log_name}"
-      ohai `grep "Completed test examples" "#{log_name}"`.chomp
-      prefix.install "#{log_name}"
-    end
+    system "make", "test" if build.with? "test"
     system "make", "install"
 
     # complex-valued case:
     ENV["PETSC_ARCH"] = arch_complex
-    args_cmplx = ["--prefix=#{prefix}/#{arch_complex}",
-                  "--with-scalar-type=complex",
-                 ]
+    args_cmplx = ["--prefix=#{prefix}/#{arch_complex}", "--with-scalar-type=complex"]
     system "./configure", *(args + args_cmplx)
     system "make", "all"
-    if build.with? "check"
-      log_name = "make-check-" + arch_complex + ".log"
-      system "make test 2>&1 | tee #{log_name}"
-      ohai `grep "Completed test examples" "#{log_name}"`.chomp
-      prefix.install "#{log_name}"
-    end
+    system "make", "test" if build.with? "test"
     system "make", "install"
 
-    # Link only what we want.
+    # Link only what we want
     petsc_arch = ((build.with? "complex") ? arch_complex : arch_real)
 
     include.install_symlink Dir["#{prefix}/#{petsc_arch}/include/*h"],
                                 "#{prefix}/#{petsc_arch}/include/finclude",
                                 "#{prefix}/#{petsc_arch}/include/petsc-private"
-    prefix.install_symlink "#{prefix}/#{petsc_arch}/conf"
-    # symlink only files (don't symlink pkgconfig as it won't symlink to opt/lib)
+    # Symlink only files (don't symlink pkgconfig as it won't symlink to opt/lib)
     lib.install_symlink Dir["#{prefix}/#{petsc_arch}/lib/*.*"]
     pkgshare.install_symlink Dir["#{prefix}/#{petsc_arch}/share/*"]
-
-    # change install name to ABI in opt
-    system "install_name_tool", "-id", "#{opt_prefix}/lib/libpetsc.3.6.dylib", "#{prefix}/#{petsc_arch}/lib/libpetsc.3.6.3.dylib" if OS.mac?
   end
 
   def caveats; <<-EOS

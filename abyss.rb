@@ -1,6 +1,6 @@
 class Abyss < Formula
-  homepage "http://www.bcgsc.ca/platform/bioinfo/software/abyss"
   desc "ABySS: genome sequence assembler for short reads"
+  homepage "http://www.bcgsc.ca/platform/bioinfo/software/abyss"
   # doi "10.1101/gr.089532.108"
   # tag "bioinformatics"
 
@@ -12,6 +12,7 @@ class Abyss < Formula
     sha256 "f0df6ae35b0db758ecba42d60cf7f6bf793e9cfe54bf05e6663afc51f4cbb5eb" => :yosemite
     sha256 "d1c37d46cbef0781ab1078d390b530f805e731ca7ed1272225db6f32d4c04b23" => :mavericks
     sha256 "943dd756f97b6c787f86cd95b150cab78d70d673648a2209b867e58ee4827906" => :mountain_lion
+    sha256 "7c6252a1734df9bfaf90ae8c3d702aa578e7968621d5258a37bd10a4beb54d03" => :x86_64_linux
   end
 
   head do
@@ -22,6 +23,7 @@ class Abyss < Formula
     depends_on "multimarkdown" => :build
   end
 
+  option :cxx11
   option "enable-maxk=", "Set the maximum k-mer length to N [default is 96]"
   option "without-check", "Skip build-time tests (not recommended)"
   option "with-openmp", "Enable OpenMP multithreading"
@@ -38,6 +40,7 @@ class Abyss < Formula
   skip_clean "bin"
 
   def install
+    ENV.cxx11 if build.cxx11?
     system "./autogen.sh" if build.head?
 
     args = [

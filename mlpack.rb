@@ -1,15 +1,14 @@
 class Mlpack < Formula
   homepage "http://www.mlpack.org"
   # doi "arXiv:1210.6293"
-  url "http://www.mlpack.org/files/mlpack-1.0.12.tar.gz"
-  sha256 "f47abfc2ab75f1d7f4c73a3368c4428223f025cc6fbc6703735df6a2734a838c"
-  revision 2
+  url "http://www.mlpack.org/files/mlpack-2.0.1.tar.gz"
+  sha256 "87305f7003e060d3c93d60ce1365c4ec0fa7e827c356e857be316b0e54114f22"
 
   bottle do
     cellar :any
-    sha256 "f7fa9efb1d6d75f651be3768d940d144db0742f01a500db4221c9b3b085fc9fc" => :el_capitan
-    sha256 "7d0f0d82b3ebf2f87c5726057dae0c0ca6ea5074cd890e6c8213aef02eb3dae0" => :yosemite
-    sha256 "61698e951d7139f5ae272e16f43678c6340ec55ab1df788e3c3969126f0d0e1e" => :mavericks
+    sha256 "8e19f5d05105b60ff7c9437e6e2604e3d44c8e0090b335b9e1e4426c3df40b23" => :el_capitan
+    sha256 "f314365938a94d00d350c94291cb05ccf6c934e026859d256bba3f4a7aa8e6b7" => :yosemite
+    sha256 "f2a09ab8b1d87c1c7b18221c2ecb866fe424a5e7d24d900b4dd687465c0b747c" => :mavericks
   end
 
   needs :cxx11
@@ -46,8 +45,9 @@ class Mlpack < Formula
   end
 
   test do
+    ENV.cxx11
     cd testpath do
-      system "#{bin}/allknn",
+      system "#{bin}/mlpack_allknn",
         "-r", "#{share}/mlpack/tests/data/GroupLens100k.csv",
         "-n", "neighbors.csv",
         "-d", "distances.csv",
@@ -66,9 +66,9 @@ class Mlpack < Formula
         Log::Warn << "A false alarm!" << std::endl;
       }
       EOS
-    system ENV.cxx, "-stdlib=libc++", "test.cpp",
-           "-I#{include}", "-I#{Formula["libxml2"].opt_include}/libxml2",
-           "-L#{lib}", "-lmlpack", "-o", "test"
+    cxx_with_flags = ENV.cxx.split + ["test.cpp", "-I#{include}", "-I#{Formula["libxml2"].opt_include}/libxml2",
+           "-L#{lib}", "-lmlpack", "-o", "test"]
+    system *cxx_with_flags
     system "./test", "--verbose"
   end
 end

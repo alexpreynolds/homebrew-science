@@ -1,18 +1,17 @@
 class Gubbins < Formula
   desc "Detect recombinations in Bacteria"
   homepage "https://github.com/sanger-pathogens/gubbins"
-  url "https://github.com/sanger-pathogens/gubbins/archive/v1.4.5.tar.gz"
-  sha256 "89249278750a15223133a76517c73de34270600c31d3e7847a37095d489cb62b"
+  url "https://github.com/sanger-pathogens/gubbins/archive/v1.4.7.tar.gz"
+  sha256 "6fdc2798a271114f8126d16e09bf6a1da2a616c7decdaeb436633629859fbfce"
   head "https://github.com/sanger-pathogens/gubbins.git"
-  revision 1
   # tag "bioinformatics"
   # doi "10.1093/nar/gku1196"
 
   bottle do
     cellar :any
-    sha256 "5a2152aed0b0cd26100f081086ec8c291fada21ebbf48eabc9936539ce05b977" => :el_capitan
-    sha256 "20f7e8bf997f535b4f9f6a65e5ac239e05247efd19ce125af3b4744e431adbd5" => :yosemite
-    sha256 "bb2fe1cd64a74d87de3650450b027f9e58b61f04a773d1e4ad368e3e946f458e" => :mavericks
+    sha256 "5d1a874fa5e761f5fa2110a8e727340ef138be9943efffc93337f32317c1347e" => :el_capitan
+    sha256 "d84be7b8a8350bf8e362881c5a44c8bb039debde07118dd216a4512cc6ff6808" => :yosemite
+    sha256 "ae6214169a4793b45e1b8354bd7748f0dec0031f64ef8d5adad61fe969e28b1d" => :mavericks
   end
 
   depends_on "autoconf"  => :build
@@ -52,6 +51,7 @@ class Gubbins < Formula
     version = Language::Python.major_minor_version "python3"
     ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{version}/site-packages"
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{version}/site-packages"
+    ENV.prepend_create_path "PYTHONPATH", "#{HOMEBREW_PREFIX}/lib/python#{version}/site-packages"
 
     %w[nose biopython dendropy reportlab].each do |r|
       resource(r).stage do
