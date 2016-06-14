@@ -20,10 +20,10 @@ class Sample < Formula
   test do
     require "tmpdir"
     require "open3"
-    temp_dir = Dir.mktmpdir
+    temporary_dir = Dir.mktmpdir
     begin
-      open("#{temp_dir}/original.txt", "w") { |t| t.puts ["1", "2", "3", "4", "5"].join("\n") }
-      stdout, _stderr, status = Open3.capture3("#{bin}/sample", "--rng-seed=123456", "#{temp_dir}/original.txt")
+      open("#{temporary_dir}/original.txt", "w") { |t| t.puts ["1", "2", "3", "4", "5"].join("\n") }
+      stdout, _stderr, status = Open3.capture3("#{bin}/sample", "--rng-seed=123456", "#{temporary_dir}/original.txt")
       if status != 0
         puts "sample failed with non-zero error - test failed"
         exit status
@@ -34,7 +34,7 @@ class Sample < Formula
         exit 1
       end
     ensure
-      remove_entry_secure temp_dir
+      remove_entry_secure temporary_dir
     end
   end
 end
