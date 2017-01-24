@@ -17,8 +17,6 @@ class Bedops < Formula
     sha256 "b2ac4d2f11b5bfc4889381022b82af9ae1561740ac1e557670e7217672b4cdee" => :x86_64_linux
   end
 
-  env :std
-
   fails_with :gcc do
     build 5666
     cause "BEDOPS toolkit requires a C++11 compliant compiler"
